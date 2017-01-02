@@ -4,13 +4,14 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.1"
     defaultConfig {
-        applicationId "de.chrthms.ct_chess_android"
+        applicationId "de.chrthms.chess"
         minSdkVersion 21
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
+// does not work properly with SDK >= 25. Instead of this the chess-engine is using a retrolambda plugin
         // Error:Jack is required to support java 8 language features. Either enable Jack or remove sourceCompatibility JavaVersion.VERSION_1_8.
 //        jackOptions {
 //            enabled true
@@ -22,6 +23,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+// does not work properly with SDK >= 25. Instead of this the chess-engine is using a retrolambda plugin
 //    compileOptions {
 //        sourceCompatibility JavaVersion.VERSION_1_8
 //        targetCompatibility JavaVersion.VERSION_1_8
@@ -30,7 +32,6 @@ android {
 
 // This is relevant to get access to the client jars, created with java/maven
 repositories {
-//    mavenLocal() - does not work properly?!
     maven {
         url '/ct_home/_TMP_DATA/MAVEN/repository'
     }
@@ -43,6 +44,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'de.chrthms.chess:ct-chess-engine:0.0.7-SNAPSHOT@jar'
+    compile 'net.sourceforge.streamsupport:streamsupport:1.5.3@jar'
     compile 'com.android.support:appcompat-v7:25.0.1'
     compile 'com.android.support:design:25.0.1'
     testCompile 'junit:junit:4.12'

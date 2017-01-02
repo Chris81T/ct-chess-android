@@ -22,9 +22,13 @@ import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
-import de.chrthms.ct_chess_android.R;
+import java.util.ArrayList;
+import java.util.List;
+
+import de.chrthms.chess.R;
 
 public class WelcomeActivity extends AppCompatActivity {
 
@@ -54,6 +58,8 @@ public class WelcomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
+
+        Log.i("WELCOME_ACTIVITY", "Create and prepare relevant components");
 
         initFloatingActionButtion();
     }

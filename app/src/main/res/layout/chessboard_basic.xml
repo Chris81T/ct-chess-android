@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~    ct-chess-android, a chess android ui app playing chess games.
+  ~    Copyright (C) 2016-2017 Christian Thomas
+  ~
+  ~    This program ct-chess-android is free software: you can redistribute it and/or modify
+  ~    it under the terms of the GNU General Public License as published by
+  ~    the Free Software Foundation, either version 3 of the License, or
+  ~    (at your option) any later version.
+  ~
+  ~    This program is distributed in the hope that it will be useful,
+  ~    but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~    GNU General Public License for more details.
+  ~
+  ~    You should have received a copy of the GNU General Public License
+  ~    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:chess="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/chessboard_basic_layout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/basicChessboardBackground"
+    android:padding="20dp">
+
+    <GridLayout
+        android:id="@+id/chessboard_grid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:columnCount="8"
+        android:rowCount="8">
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="a8" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="b8" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="c8" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="d8" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="e8" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="f8" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="g8" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="h8" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="a7" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="b7" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="c7" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="d7" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="e7" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="f7" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="g7" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="h7" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="a6" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="b6" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="c6" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="d6" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="e6" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="f6" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="g6" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="h6" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="a5" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="b5" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="c5" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="d5" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="e5" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="f5" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="g5" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="h5" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="a4" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="b4" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="c4" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="d4" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="e4" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="f4" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="g4" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="h4" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="a3" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="b3" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="c3" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="d3" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="e3" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="f3" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="g3" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="h3" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="a2" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="b2" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="c2" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="d2" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="e2" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="f2" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="g2" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="h2" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="a1" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="b1" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="c1" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="d1" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="e1" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="f1" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicBlackFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="g1" />
+
+        <de.chrthms.chess.board.FieldView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@color/basicWhiteFieldBackground"
+            android:padding="@dimen/basic_chessboard_field_padding"
+            chess:coord="h1" />
+
+    </GridLayout>
+
+</RelativeLayout>

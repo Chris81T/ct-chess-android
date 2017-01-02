@@ -22,22 +22,37 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import de.chrthms.chess.Chessboard;
 import de.chrthms.chess.engine.ChessEngine;
 import de.chrthms.chess.engine.core.Handle;
 import de.chrthms.chess.engine.impl.ChessEngineBuilder;
-import de.chrthms.ct_chess_android.R;
+import de.chrthms.chess.R;
 
 public class GameActivity extends AppCompatActivity {
+
+    private final ChessEngine chessEngine = ChessEngineBuilder.build();
+
+    private Chessboard chessboard = null;
+
+    // TODO first start to get the board running ... Must be refactored ;-)
+    private void prepareBoard() {
+
+        final Handle handle = chessEngine.newGame();
+        Log.i("GAME_ACTIVITY", "PrepareBoard --> Created handle = " + handle);
+
+        chessboard.prepareChessboard(chessEngine.getFigurePositions(handle));
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        final ChessEngine chessEngine = ChessEngineBuilder.build();
-        final Handle handle = chessEngine.newGame();
+        chessboard = (Chessboard) findViewById(R.id.chessboard);
 
-        Log.i("GAME_ACTIVITY", "Created handle = " + handle);
-
+        prepareBoard();
     }
+
+
 }

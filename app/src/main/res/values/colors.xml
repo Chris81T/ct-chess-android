@@ -3,4 +3,8 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="basicChessboardBackground">#FF4081</color>
+    <color name="basicBlackFieldBackground">#5b5b5b</color>
+    <color name="basicWhiteFieldBackground">#ededed</color>
 </resources>
