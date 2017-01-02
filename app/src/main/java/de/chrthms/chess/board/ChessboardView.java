@@ -177,16 +177,27 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
     }
 
     @Override
-    public void prepareChessboard(List<FigurePosition> figurePositions) {
+    public void prepareChessboard(final List<FigurePosition> figurePositions) {
 
-        final Context context = getContext();
+        /**
+         * Possibly this prepareChessboard is called before this view is ready to be drawn. So this guarantees, that
+         * the measured sizes are available
+         */
+        post(new Runnable() {
+            @Override
+            public void run() {
 
-        for (FigurePosition figurePosition : figurePositions) {
+                final Context context = getContext();
 
-            AbstractFigureView figure = FigureViewBuilder.createFigureView(context, figurePosition.getFigureType(), figurePosition.getColorType());
-            placeFigure(figure, figurePosition.getFieldCoord());
+                for (FigurePosition figurePosition : figurePositions) {
 
-        }
+                    AbstractFigureView figure = FigureViewBuilder.createFigureView(context, figurePosition.getFigureType(), figurePosition.getColorType());
+                    placeFigure(figure, figurePosition.getFieldCoord());
+
+                }
+
+            }
+        });
 
     }
 
