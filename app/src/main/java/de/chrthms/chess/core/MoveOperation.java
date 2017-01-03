@@ -31,8 +31,7 @@ public class MoveOperation {
 
     public static final int STATE_NEW = 0;
     public static final int STATE_STARTED = 1;
-    public static final int STATE_MOVE_TO = 2;
-    public static final int STATE_COMPLETE_MOVE = 3;
+    public static final int STATE_MOVE_TO_AND_COMPLETE = 2;
 
     private int state = STATE_NEW;
 

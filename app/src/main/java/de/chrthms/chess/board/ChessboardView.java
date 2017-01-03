@@ -223,7 +223,35 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
     }
 
     private void showPossibleMoves(MoveOperation moveOperation) {
-        // TODO
+
+        final FieldView sourceFieldView = moveOperation.getSourceField();
+
+        AnimatorSet animations = new AnimatorSet();
+
+        final AnimatorSet.Builder builder = animations.play(sourceFieldView.getSourceFieldFadeInAnimation());
+
+        for (String coord : moveOperation.getPossibleMoves()) {
+            final FieldView fieldView = fields.get(coord);
+            builder.with(fieldView.getPossibleMovesFadeInAnimation());
+        }
+
+        animations.start();
+    }
+
+    private void hidePossibleMoves(MoveOperation moveOperation) {
+
+        final FieldView sourceFieldView = moveOperation.getSourceField();
+
+        AnimatorSet animations = new AnimatorSet();
+
+        final AnimatorSet.Builder builder = animations.play(sourceFieldView.getSourceFieldFadeOutAnimation());
+
+        for (String coord : moveOperation.getPossibleMoves()) {
+            final FieldView fieldView = fields.get(coord);
+            builder.with(fieldView.getPossibleMovesFadeOutAnimation());
+        }
+
+        animations.start();
     }
 
     @Override
@@ -232,6 +260,10 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
         try {
 
             if (isMoveOperationAvailable() && moveOperation.getState() == MoveOperation.STATE_STARTED) {
+
+                moveOperation.setState(MoveOperation.STATE_MOVE_TO_AND_COMPLETE);
+
+                hidePossibleMoves(moveOperation);
 
                 final Handle handle = gameHandle.getHandle();
                 final FieldView fromFieldView = moveOperation.getSourceField();
@@ -263,7 +295,9 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
 
     private void completeMoveOperation(Handle handle, MoveResult moveResult) {
 
-        chessEngine.completeMoveTo(handle, moveResult);
+        final int currentGameState = chessEngine.completeMoveTo(handle, moveResult);
+
+        moveOperation = null;
 
     }
 

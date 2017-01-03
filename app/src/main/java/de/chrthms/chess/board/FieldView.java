@@ -42,7 +42,9 @@ import de.chrthms.chess.figures.AbstractFigureView;
  */
 public class FieldView extends FrameLayout {
 
-    private static final int ANIMATION_INVALID_FIELD_DURATION = 250;
+    private static final int ANIMATION_INVALID_FIELD_DURATION = 200;
+    private static final int ANIMATION_SOURCE_FIELD_DURATION = 250;
+    private static final int ANIMATION_POSSIBLE_FIELDS_DURATION = 250;
 
     private Chessboard chessboard = null;
 
@@ -154,6 +156,78 @@ public class FieldView extends FrameLayout {
 
         alphaAnimation.start();
 
+    }
+
+    public ObjectAnimator getSourceFieldFadeInAnimation() {
+        addView(sourceFieldView);
+        final ObjectAnimator fadeInAnimation = ObjectAnimator.ofFloat(sourceFieldView, "alpha", 0f, 1f);
+        fadeInAnimation.setDuration(ANIMATION_SOURCE_FIELD_DURATION);
+        return fadeInAnimation;
+    }
+
+    public ObjectAnimator getSourceFieldFadeOutAnimation() {
+        final ObjectAnimator fadeOutAnimation = ObjectAnimator.ofFloat(sourceFieldView, "alpha", 1f, 0f);
+        fadeOutAnimation.setDuration(ANIMATION_SOURCE_FIELD_DURATION);
+
+        fadeOutAnimation.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                removeView(sourceFieldView);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+
+        return fadeOutAnimation;
+    }
+
+    public ObjectAnimator getPossibleMovesFadeInAnimation() {
+        addView(possibleFieldView);
+        final ObjectAnimator fadeInAnimation = ObjectAnimator.ofFloat(possibleFieldView, "alpha", 0f, 1f);
+        fadeInAnimation.setDuration(ANIMATION_POSSIBLE_FIELDS_DURATION);
+        return fadeInAnimation;
+    }
+
+        public ObjectAnimator getPossibleMovesFadeOutAnimation() {
+        final ObjectAnimator fadeOutAnimation = ObjectAnimator.ofFloat(possibleFieldView, "alpha", 1f, 0f);
+        fadeOutAnimation.setDuration(ANIMATION_POSSIBLE_FIELDS_DURATION);
+
+            fadeOutAnimation.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    removeView(possibleFieldView);
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
+                }
+            });
+
+            return fadeOutAnimation;
     }
 
     @Override
