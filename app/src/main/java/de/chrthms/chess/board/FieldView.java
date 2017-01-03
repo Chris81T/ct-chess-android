@@ -18,26 +18,41 @@
 
 package de.chrthms.chess.board;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
 import de.chrthms.chess.Chessboard;
 import de.chrthms.chess.R;
+import de.chrthms.chess.board.markers.InvalidFieldView;
+import de.chrthms.chess.board.markers.PossibleFieldView;
+import de.chrthms.chess.board.markers.SourceFieldView;
+import de.chrthms.chess.core.MoveOperation;
 import de.chrthms.chess.figures.AbstractFigureView;
 
 /**
  * Created by christian on 01.01.17.
  */
-
 public class FieldView extends FrameLayout {
+
+    private static final int ANIMATION_INVALID_FIELD_DURATION = 250;
 
     private Chessboard chessboard = null;
 
     private String coordStr = null;
 
     private AbstractFigureView figureView = null;
+
+    private InvalidFieldView invalidFieldView = null;
+    private PossibleFieldView possibleFieldView = null;
+    private SourceFieldView sourceFieldView = null;
 
     public FieldView(Context context) {
         super(context);
@@ -71,9 +86,22 @@ public class FieldView extends FrameLayout {
             array.recycle();
         }
 
+        initChildViews(context);
+    }
+
+    private void initChildViews(Context context) {
+        invalidFieldView = new InvalidFieldView(context);
+        possibleFieldView = new PossibleFieldView(context);
+        sourceFieldView = new SourceFieldView(context);
     }
 
     public AbstractFigureView getFigureView() {
+        return figureView;
+    }
+
+    public AbstractFigureView takeFigureView() {
+        AbstractFigureView figureView = this.figureView;
+        this.figureView = null;
         return figureView;
     }
 
@@ -91,5 +119,83 @@ public class FieldView extends FrameLayout {
 
     public String getCoordStr() {
         return coordStr;
+    }
+
+    private void animateAsInvalidField() {
+
+        addView(invalidFieldView);
+
+        final ObjectAnimator alphaAnimation = ObjectAnimator.ofFloat(invalidFieldView, "alpha", 0f, 1f);
+        alphaAnimation.setRepeatCount(1);
+        alphaAnimation.setRepeatMode(ValueAnimator.REVERSE);
+        alphaAnimation.setDuration(ANIMATION_INVALID_FIELD_DURATION);
+
+        alphaAnimation.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                removeView(invalidFieldView);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+
+        alphaAnimation.start();
+
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+
+                if (!chessboard.isMoveOperationAvailable()) {
+
+                    if (getFigureView() != null) {
+                        boolean succeed = chessboard.startMoveOperation(this);
+
+                        if (!succeed) {
+                            animateAsInvalidField();
+                        }
+
+                        return succeed;
+                    } else {
+                        animateAsInvalidField();
+                        return false;
+                    }
+
+                } else {
+                    final MoveOperation moveOperation = chessboard.getAvailableMoveOperation();
+                    if (moveOperation.getPossibleMoves().contains(getCoordStr())) {
+                        return chessboard.performMoveOperation(this);
+                    } else {
+                        // TODO animate invalid field...
+                        return true;
+                    }
+
+                }
+
+            case MotionEvent.ACTION_MOVE:
+                return false;
+            case MotionEvent.ACTION_UP:
+                return false;
+            default:
+                return false;
+
+        }
+
     }
 }

@@ -18,6 +18,10 @@
 
 package de.chrthms.chess.board;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.PointF;
 import android.util.AttributeSet;
@@ -28,16 +32,28 @@ import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.RelativeLayout;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import de.chrthms.chess.Chessboard;
 import de.chrthms.chess.R;
+import de.chrthms.chess.core.GameHandle;
 import de.chrthms.chess.core.MoveOperation;
+import de.chrthms.chess.engine.ChessEngine;
+import de.chrthms.chess.engine.core.Coord;
 import de.chrthms.chess.engine.core.FigurePosition;
+import de.chrthms.chess.engine.core.Handle;
+import de.chrthms.chess.engine.core.MoveResult;
+import de.chrthms.chess.engine.core.backports.StreamBuilder;
+import de.chrthms.chess.engine.core.constants.FigureType;
+import de.chrthms.chess.engine.core.constants.MoveResultType;
+import de.chrthms.chess.engine.exceptions.ChessEngineException;
+import de.chrthms.chess.engine.impl.ChessEngineBuilder;
 import de.chrthms.chess.figures.AbstractFigureView;
 import de.chrthms.chess.figures.FigureViewBuilder;
+import java8.util.stream.Collectors;
 
 /**
  * Created by christian on 01.01.17.
@@ -45,11 +61,18 @@ import de.chrthms.chess.figures.FigureViewBuilder;
 
 public class ChessboardView extends RelativeLayout implements Chessboard {
 
+    private static final int ANIMATION_MOVE_FIGURE_DURATION = 250;
+    private static final float ANIMATION_MOVE_FIGURE_RAISE_UP_DOWN = 2f;
+
     private Map<String, FieldView> fields = new HashMap<>();
 
     private GridLayout chessboardGrid;
 
     private MoveOperation moveOperation = null;
+
+    private final ChessEngine chessEngine = ChessEngineBuilder.build();
+
+    private GameHandle gameHandle = null;
 
     public ChessboardView(Context context) {
         super(context);
@@ -153,27 +176,182 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
 
     @Override
     public boolean isMoveOperationAvailable() {
-        return false;
+        return moveOperation != null;
     }
 
     @Override
     public MoveOperation getAvailableMoveOperation() {
-        return null;
+        return moveOperation;
     }
 
     @Override
-    public void startMoveOperation(FieldView field) {
+    public boolean startMoveOperation(FieldView fromFieldView) {
 
+        if (isMoveOperationAvailable()) return false;
+
+        try {
+
+            final Handle handle = gameHandle.getHandle();
+            final AbstractFigureView figureToMove = fromFieldView.getFigureView();
+
+            if (figureToMove.getFigureColor() != handle.getActivePlayer()) return false;
+
+
+            final List<Coord> possibleMoves = chessEngine.possibleMoves(handle, new Coord(fromFieldView.getCoordStr()));
+
+            if (possibleMoves.isEmpty()) return false;
+
+            final List<String> mappedMoves = new ArrayList<>();
+            for (Coord possibleMove : possibleMoves) {
+                mappedMoves.add(possibleMove.getStrCoord());
+            }
+
+            moveOperation = new MoveOperation();
+            moveOperation.setSourceField(fromFieldView);
+            moveOperation.setPossibleMoves(mappedMoves);
+
+            moveOperation.setState(MoveOperation.STATE_STARTED);
+
+            showPossibleMoves(moveOperation);
+
+
+        } catch (ChessEngineException e) {
+            Log.e("CHESSBOARD", "startMoveOperation failed. ChessEngineException Message = " + e.getMessage());
+        }
+
+        return true;
+    }
+
+    private void showPossibleMoves(MoveOperation moveOperation) {
+        // TODO
     }
 
     @Override
-    public void performMoveOperation(FieldView field) {
+    public boolean performMoveOperation(FieldView toFieldView) {
+
+        try {
+
+            if (isMoveOperationAvailable() && moveOperation.getState() == MoveOperation.STATE_STARTED) {
+
+                final Handle handle = gameHandle.getHandle();
+                final FieldView fromFieldView = moveOperation.getSourceField();
+                final Coord fromCoord = new Coord(fromFieldView.getCoordStr());
+                final Coord toCoord = new Coord(toFieldView.getCoordStr());
+
+                final MoveResult moveResult = chessEngine.moveTo(handle, fromCoord, toCoord);
+
+                moveFigure(fromFieldView, toFieldView);
+
+                if (moveResult.getMoveResultType() == MoveResultType.DECISION_NEEDED) {
+                    // TODO Dialog is needed to show!
+
+                    // adjust the moveResult with new figure for pawn transformation
+                }
+
+                completeMoveOperation(handle, moveResult);
+
+                return true;
+            }
+
+
+        } catch (ChessEngineException e) {
+            Log.e("CHESSBOARD", "performMoveOperation failed. ChessEngineException Message = " + e.getMessage());
+        }
+
+        return false;
+    }
+
+    private void completeMoveOperation(Handle handle, MoveResult moveResult) {
+
+        chessEngine.completeMoveTo(handle, moveResult);
 
     }
+
 
     @Override
     public void moveFigure(String fromCoord, String toCoord) {
 
+        final FieldView fromField = fields.get(fromCoord);
+        final FieldView toField = fields.get(toCoord);
+
+        moveFigure(fromField, toField);
+
+    }
+
+    @Override
+    public void moveFigure(FieldView fromField, FieldView toField) {
+        final AbstractFigureView figureView = fromField.takeFigureView();
+
+        if (figureView != null) {
+
+            final AbstractFigureView mayHitFigureView = toField.getFigureView();
+            toField.setFigureView(figureView);
+
+            final PointF fromPoint = getFromTranslation(figureView);
+            final PointF toPoint = getFieldTranslation(toField.getCoordStr());
+
+            final ObjectAnimator moveX = ObjectAnimator
+                    .ofFloat(figureView, "translationX", fromPoint.x, toPoint.x);
+
+            final ObjectAnimator moveY = ObjectAnimator
+                    .ofFloat(figureView, "translationY", fromPoint.y, toPoint.y);
+
+            final ObjectAnimator raiseUpAndDownX = ObjectAnimator.ofFloat(figureView, "scaleX", ANIMATION_MOVE_FIGURE_RAISE_UP_DOWN);
+            raiseUpAndDownX.setRepeatCount(1);
+            raiseUpAndDownX.setRepeatMode(ValueAnimator.REVERSE);
+
+            final ObjectAnimator raiseUpAndDownY = ObjectAnimator.ofFloat(figureView, "scaleY", ANIMATION_MOVE_FIGURE_RAISE_UP_DOWN);
+            raiseUpAndDownY.setRepeatCount(1);
+            raiseUpAndDownY.setRepeatMode(ValueAnimator.REVERSE);
+
+            AnimatorSet animatorSet = new AnimatorSet();
+            final AnimatorSet.Builder animationBuilder = animatorSet
+                    .play(moveY)
+                    .with(moveX)
+                    .with(raiseUpAndDownX)
+                    .with(raiseUpAndDownY);
+
+            if (mayHitFigureView != null) {
+                final ObjectAnimator fadeOutAnimation = ObjectAnimator.ofFloat(mayHitFigureView, "alpha", 1f, 0f);
+
+                fadeOutAnimation.addListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        removeView(mayHitFigureView);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
+
+                animationBuilder.with(fadeOutAnimation);
+            }
+
+            animatorSet.setDuration(ANIMATION_MOVE_FIGURE_DURATION);
+            animatorSet.start();
+
+
+        } else {
+            Log.e("CHESSBOARD", "No figure found at 'from' field!");
+        }
+
+    }
+
+    @Override
+    public void setGameHandle(GameHandle gameHandle) {
+        this.gameHandle = gameHandle;
     }
 
     @Override

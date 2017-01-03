@@ -7,4 +7,7 @@
     <color name="basicChessboardBackground">#FF4081</color>
     <color name="basicBlackFieldBackground">#5b5b5b</color>
     <color name="basicWhiteFieldBackground">#ededed</color>
+
+    <color name="basicFieldPossibleColor">#38e9c5</color>
+    <color name="basicFieldIvalidColor">#ff1650</color>
 </resources>

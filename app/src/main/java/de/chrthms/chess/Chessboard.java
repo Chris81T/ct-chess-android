@@ -21,6 +21,7 @@ package de.chrthms.chess;
 import java.util.List;
 
 import de.chrthms.chess.board.FieldView;
+import de.chrthms.chess.core.GameHandle;
 import de.chrthms.chess.core.MoveOperation;
 import de.chrthms.chess.engine.core.FigurePosition;
 import de.chrthms.chess.figures.AbstractFigureView;
@@ -36,11 +37,14 @@ public interface Chessboard {
 
     MoveOperation getAvailableMoveOperation();
 
-    void startMoveOperation(FieldView field);
+    boolean startMoveOperation(FieldView fromField);
 
-    void performMoveOperation(FieldView field);
+    boolean performMoveOperation(FieldView toField);
 
+    void moveFigure(FieldView fromField, FieldView toField);
     void moveFigure(String fromCoord, String toCoord);
+
+    void setGameHandle(GameHandle gameHandle);
 
     void prepareChessboard(List<FigurePosition> figurePositions);
 

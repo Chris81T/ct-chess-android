@@ -23,7 +23,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-// does not work properly with SDK >= 25. Instead of this the chess-engine is using a retrolambda plugin
+    // does not work properly with SDK >= 25. Instead of this the chess-engine is using a retrolambda plugin
 //    compileOptions {
 //        sourceCompatibility JavaVersion.VERSION_1_8
 //        targetCompatibility JavaVersion.VERSION_1_8
