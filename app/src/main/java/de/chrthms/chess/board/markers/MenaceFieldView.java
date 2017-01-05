@@ -30,21 +30,21 @@ import de.chrthms.chess.R;
 /**
  * Created by christian on 30.12.16.
  */
-public class InvalidFieldView extends View {
+public class MenaceFieldView extends View {
 
-    public InvalidFieldView(Context context) {
+    public MenaceFieldView(Context context) {
         super(context);
     }
 
-    public InvalidFieldView(Context context, AttributeSet attrs) {
+    public MenaceFieldView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public InvalidFieldView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public MenaceFieldView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
-    public InvalidFieldView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public MenaceFieldView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 

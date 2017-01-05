@@ -32,15 +32,18 @@ import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.RelativeLayout;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import de.chrthms.chess.Chessboard;
+import de.chrthms.chess.GameHandle;
 import de.chrthms.chess.R;
 import de.chrthms.chess.engine.ChessEngine;
 import de.chrthms.chess.engine.core.Coord;
 import de.chrthms.chess.engine.core.FigurePosition;
+import de.chrthms.chess.engine.core.figures.AbstractFigure;
 import de.chrthms.chess.engine.impl.ChessEngineBuilder;
 import de.chrthms.chess.figures.AbstractFigureView;
 import de.chrthms.chess.figures.FigureViewBuilder;
@@ -57,35 +60,40 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
 
     private GridLayout chessboardGrid;
 
+    private GameHandle gameHandle = null;
+
     private final ChessEngine chessEngine = ChessEngineBuilder.build();
 
     public ChessboardView(Context context) {
         super(context);
-        initChessboard();
+        preInitChessboard();
     }
 
     public ChessboardView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        initChessboard();
+        preInitChessboard();
     }
 
     public ChessboardView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initChessboard();
+        preInitChessboard();
     }
 
     public ChessboardView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        initChessboard();
+        preInitChessboard();
     }
 
-    private void initChessboard() {
+    private void preInitChessboard() {
         Log.d("CHESSBOARD", "init chessboard");
         LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         layoutInflater.inflate(R.layout.chessboard_basic, this, true);
 
         chessboardGrid = (GridLayout) findViewById(R.id.chessboard_grid);
+    }
 
+    public void initChessboard(GameHandle gameHandle) {
+        this.gameHandle = gameHandle;
         detectAndPrepareFields();
     }
 
@@ -94,7 +102,7 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
         final int fieldCount = chessboardGrid.getChildCount();
         for (int i=0; i<fieldCount; i++) {
             FieldView field = (FieldView) chessboardGrid.getChildAt(i);
-            field.setChessboard(this);
+            field.setGameHandle(gameHandle);
             fields.put(field.getCoordStr(), field);
         }
 
@@ -189,8 +197,8 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
 
         final AnimatorSet.Builder builder = animations.play(sourceFieldView.getSourceFieldFadeInAnimation());
 
-        for (String coord : moveOperation.getPossibleMoves()) {
-            final FieldView fieldView = fields.get(coord);
+        for (Coord coord : possibleMoves) {
+            final FieldView fieldView = fields.get(coord.getStrCoord());
             builder.with(fieldView.getPossibleMovesFadeInAnimation());
         }
 
@@ -205,8 +213,8 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
 
         final AnimatorSet.Builder builder = animations.play(sourceFieldView.getSourceFieldFadeOutAnimation());
 
-        for (String coord : moveOperation.getPossibleMoves()) {
-            final FieldView fieldView = fields.get(coord);
+        for (Coord coord : possibleMoves) {
+            final FieldView fieldView = fields.get(coord.getStrCoord());
             builder.with(fieldView.getPossibleMovesFadeOutAnimation());
         }
 
@@ -252,31 +260,7 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
                     .with(raiseUpAndDownY);
 
             if (mayHitFigureView != null) {
-                final ObjectAnimator fadeOutAnimation = ObjectAnimator.ofFloat(mayHitFigureView, "alpha", 1f, 0f);
-
-                fadeOutAnimation.addListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        removeView(mayHitFigureView);
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animator animation) {
-
-                    }
-                });
-
-                animationBuilder.with(fadeOutAnimation);
+                animationBuilder.with(createFigureFadeOutAnimation(mayHitFigureView));
             }
 
             animatorSet.setDuration(ANIMATION_MOVE_FIGURE_DURATION);
@@ -294,34 +278,70 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
 TODO
     }
 
+    private ObjectAnimator createFigureFadeOutAnimation(final AbstractFigureView figureViewToHide) {
+
+        final ObjectAnimator fadeOutAnimation = ObjectAnimator.ofFloat(figureViewToHide, "alpha", 1f, 0f);
+
+        fadeOutAnimation.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                removeView(figureViewToHide);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+
+        return fadeOutAnimation;
+    }
+
     @Override
     public void hideFigure(String coord) {
+        final FieldView fieldView = fields.get(coord);
+        final AbstractFigureView figureViewToHide = fieldView.getFigureView();
 
+        if (figureViewToHide != null) {
+            final ObjectAnimator figureFadeOutAnimation = createFigureFadeOutAnimation(figureViewToHide);
+            figureFadeOutAnimation.setDuration(ANIMATION_MOVE_FIGURE_DURATION);
+            figureFadeOutAnimation.start();
+        }
     }
 
     @Override
     public FieldView getFieldView(String coord) {
-        return null;
+        return fields.get(coord);
     }
 
     @Override
     public void rotateFiguresToWhiteSide() {
-
+        rotateFiguresToWhiteSide(false);
     }
 
     @Override
     public void rotateFiguresToWhiteSide(boolean withoutAnimation) {
-
+        // TODO
     }
 
     @Override
     public void rotateFiguresToBlackSide() {
-
+        rotateFiguresToBlackSide(false);
     }
 
     @Override
     public void rotateFiguresToBlackSide(boolean withoutAnimation) {
-
+        // TODO
     }
 
 }

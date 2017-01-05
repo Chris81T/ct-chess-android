@@ -88,15 +88,16 @@ public class HumanVsHumanGameHandle extends AbstractHumanGameHandle {
 
         AbstractFigureView figureView = fieldView.getFigureView();
 
-        if (figureView != null && figureView.getColorType() != handle.getActivePlayer()) {
+        if (figureView != null && figureView.getFigureColor() != handle.getActivePlayer()) {
 
             hideMayKingsFieldMenace();
 
             List<Coord> possibleMoves = chessEngine.possibleMoves(handle, new Coord(fieldView.getCoordStr()));
             setPossibleMoves(possibleMoves);
+            setSourceFieldView(fieldView);
 
             if (!possibleMoves.isEmpty()) {
-                chessboard.showPossibleMoves(possibleMoves);
+                chessboard.showPossibleMoves(fieldView, possibleMoves);
 
                 setNewState(STATE_POSSIBLE_MOVES);
 
@@ -127,8 +128,8 @@ public class HumanVsHumanGameHandle extends AbstractHumanGameHandle {
         }
 
         if (fieldAccepted) {
-            chessboard.hidePossibleMoves(getPossibleMoves());
-            clearPossibleMoves();
+            chessboard.hidePossibleMoves(getSourceFieldView(), getPossibleMoves());
+            clearPossibleMovesAndSourceFieldView();
 
             final String fromCoord = getFromCoord();
 

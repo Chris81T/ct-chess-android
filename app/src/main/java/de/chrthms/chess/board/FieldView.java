@@ -19,22 +19,19 @@
 package de.chrthms.chess.board;
 
 import android.animation.Animator;
-import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
-import de.chrthms.chess.Chessboard;
+import de.chrthms.chess.GameHandle;
 import de.chrthms.chess.R;
-import de.chrthms.chess.board.markers.InvalidFieldView;
+import de.chrthms.chess.board.markers.MenaceFieldView;
 import de.chrthms.chess.board.markers.PossibleFieldView;
 import de.chrthms.chess.board.markers.SourceFieldView;
-import de.chrthms.chess.core.MoveOperation;
 import de.chrthms.chess.figures.AbstractFigureView;
 
 /**
@@ -46,13 +43,13 @@ public class FieldView extends FrameLayout {
     private static final int ANIMATION_SOURCE_FIELD_DURATION = 250;
     private static final int ANIMATION_POSSIBLE_FIELDS_DURATION = 250;
 
-    private Chessboard chessboard = null;
-
     private String coordStr = null;
+
+    private GameHandle gameHandle = null;
 
     private AbstractFigureView figureView = null;
 
-    private InvalidFieldView invalidFieldView = null;
+    private MenaceFieldView menaceFieldView = null;
     private PossibleFieldView possibleFieldView = null;
     private SourceFieldView sourceFieldView = null;
 
@@ -92,7 +89,7 @@ public class FieldView extends FrameLayout {
     }
 
     private void initChildViews(Context context) {
-        invalidFieldView = new InvalidFieldView(context);
+        menaceFieldView = new MenaceFieldView(context);
         possibleFieldView = new PossibleFieldView(context);
         sourceFieldView = new SourceFieldView(context);
     }
@@ -107,27 +104,27 @@ public class FieldView extends FrameLayout {
         return figureView;
     }
 
+    public GameHandle getGameHandle() {
+        return gameHandle;
+    }
+
+    public void setGameHandle(GameHandle gameHandle) {
+        this.gameHandle = gameHandle;
+    }
+
     public void setFigureView(AbstractFigureView figureView) {
         this.figureView = figureView;
-    }
-
-    public Chessboard getChessboard() {
-        return chessboard;
-    }
-
-    public void setChessboard(Chessboard chessboard) {
-        this.chessboard = chessboard;
     }
 
     public String getCoordStr() {
         return coordStr;
     }
 
-    private void animateAsInvalidField() {
+    public void toggleMenace() {
 
-        addView(invalidFieldView);
+        addView(menaceFieldView);
 
-        final ObjectAnimator alphaAnimation = ObjectAnimator.ofFloat(invalidFieldView, "alpha", 0f, 1f);
+        final ObjectAnimator alphaAnimation = ObjectAnimator.ofFloat(menaceFieldView, "alpha", 0f, 1f);
         alphaAnimation.setRepeatCount(1);
         alphaAnimation.setRepeatMode(ValueAnimator.REVERSE);
         alphaAnimation.setDuration(ANIMATION_INVALID_FIELD_DURATION);
@@ -140,7 +137,7 @@ public class FieldView extends FrameLayout {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                removeView(invalidFieldView);
+                removeView(menaceFieldView);
             }
 
             @Override
@@ -156,6 +153,42 @@ public class FieldView extends FrameLayout {
 
         alphaAnimation.start();
 
+    }
+
+    public void showMenace() {
+        addView(menaceFieldView);
+        final ObjectAnimator alphaAnimation = ObjectAnimator.ofFloat(menaceFieldView, "alpha", 0f, 1f);
+        alphaAnimation.setDuration(ANIMATION_INVALID_FIELD_DURATION);
+        alphaAnimation.start();
+    }
+
+    public void hideMenace() {
+        final ObjectAnimator alphaAnimation = ObjectAnimator.ofFloat(menaceFieldView, "alpha", 1f, 0f);
+        alphaAnimation.setDuration(ANIMATION_INVALID_FIELD_DURATION);
+
+        alphaAnimation.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                removeView(menaceFieldView);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+
+        alphaAnimation.start();
     }
 
     public ObjectAnimator getSourceFieldFadeInAnimation() {
@@ -235,37 +268,10 @@ public class FieldView extends FrameLayout {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-
-                if (!chessboard.isMoveOperationAvailable()) {
-
-                    if (getFigureView() != null) {
-                        boolean succeed = chessboard.startMoveOperation(this);
-
-                        if (!succeed) {
-                            animateAsInvalidField();
-                        }
-
-                        return succeed;
-                    } else {
-                        animateAsInvalidField();
-                        return false;
-                    }
-
-                } else {
-                    final MoveOperation moveOperation = chessboard.getAvailableMoveOperation();
-                    if (moveOperation.getPossibleMoves().contains(getCoordStr())) {
-                        return chessboard.performMoveOperation(this);
-                    } else {
-                        // TODO animate invalid field...
-                        return true;
-                    }
-
-                }
-
+                gameHandle.fieldTrigger(this);
+                return true;
             case MotionEvent.ACTION_MOVE:
-                return false;
             case MotionEvent.ACTION_UP:
-                return false;
             default:
                 return false;
 

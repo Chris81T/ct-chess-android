@@ -60,8 +60,9 @@ public abstract class AbstractGameHandle implements GameHandle, Serializable {
 
     /**
      * With state POSSIBLE_MOVES_REQUEST some possible moves should be set here. With state MOVE_TO the possibleMoves
-     * are obsolete and can be cleared.
+     * are obsolete and can be cleared. Also the sourceField
      */
+    private FieldView sourceFieldView = null;
     private List<Coord> possibleMoves = new ArrayList<>();
 
     private MoveResult moveResult = null;
@@ -76,8 +77,17 @@ public abstract class AbstractGameHandle implements GameHandle, Serializable {
         this.possibleMoves = possibleMoves;
     }
 
-    protected void clearPossibleMoves() {
+    protected FieldView getSourceFieldView() {
+        return sourceFieldView;
+    }
+
+    protected void setSourceFieldView(FieldView sourceFieldView) {
+        this.sourceFieldView = sourceFieldView;
+    }
+
+    protected void clearPossibleMovesAndSourceFieldView() {
         possibleMoves.clear();
+        sourceFieldView = null;
     }
 
     protected FieldView getFieldViewTrigger() {
