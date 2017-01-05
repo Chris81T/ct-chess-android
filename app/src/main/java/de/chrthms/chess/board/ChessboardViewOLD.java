@@ -32,23 +32,30 @@ import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.RelativeLayout;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import de.chrthms.chess.Chessboard;
 import de.chrthms.chess.R;
+import de.chrthms.chess.core.MoveOperation;
 import de.chrthms.chess.engine.ChessEngine;
 import de.chrthms.chess.engine.core.Coord;
 import de.chrthms.chess.engine.core.FigurePosition;
+import de.chrthms.chess.engine.core.Handle;
+import de.chrthms.chess.engine.core.MoveResult;
+import de.chrthms.chess.engine.core.constants.MoveResultType;
+import de.chrthms.chess.engine.exceptions.ChessEngineException;
 import de.chrthms.chess.engine.impl.ChessEngineBuilder;
 import de.chrthms.chess.figures.AbstractFigureView;
 import de.chrthms.chess.figures.FigureViewBuilder;
 
 /**
- * Created by christian on 05.01.17.
+ * Created by christian on 01.01.17.
  */
-public class ChessboardView extends RelativeLayout implements Chessboard {
+
+public class ChessboardViewOLD extends RelativeLayout implements Chessboard {
 
     private static final int ANIMATION_MOVE_FIGURE_DURATION = 250;
     private static final float ANIMATION_MOVE_FIGURE_RAISE_UP_DOWN = 2f;
@@ -57,7 +64,11 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
 
     private GridLayout chessboardGrid;
 
+    private MoveOperation moveOperation = null;
+
     private final ChessEngine chessEngine = ChessEngineBuilder.build();
+
+    private GameHandle gameHandle = null;
 
     public ChessboardView(Context context) {
         super(context);
@@ -137,6 +148,7 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
+    @Override
     public void placeFigure(AbstractFigureView figure, String coord) {
 
         FieldView field = fields.get(coord);
@@ -158,32 +170,57 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
 
     }
 
-    public void prepareChessboard(final List<FigurePosition> figurePositions) {
-
-        /**
-         * Possibly this prepareChessboard is called before this view is ready to be drawn. So this guarantees, that
-         * the measured sizes are available
-         */
-        post(new Runnable() {
-            @Override
-            public void run() {
-
-                final Context context = getContext();
-
-                for (FigurePosition figurePosition : figurePositions) {
-
-                    AbstractFigureView figure = FigureViewBuilder.createFigureView(context, figurePosition.getFigureType(), figurePosition.getColorType());
-                    placeFigure(figure, figurePosition.getFieldCoord());
-
-                }
-
-            }
-        });
-
+    @Override
+    public boolean isMoveOperationAvailable() {
+        return moveOperation != null;
     }
 
     @Override
-    public void showPossibleMoves(FieldView sourceFieldView, List<Coord> possibleMoves) {
+    public MoveOperation getAvailableMoveOperation() {
+        return moveOperation;
+    }
+
+    @Override
+    public boolean startMoveOperation(FieldView fromFieldView) {
+
+        if (isMoveOperationAvailable()) return false;
+
+        try {
+
+            final Handle handle = gameHandle.getHandle();
+            final AbstractFigureView figureToMove = fromFieldView.getFigureView();
+
+            if (figureToMove.getFigureColor() != handle.getActivePlayer()) return false;
+
+
+            final List<Coord> possibleMoves = chessEngine.possibleMoves(handle, new Coord(fromFieldView.getCoordStr()));
+
+            if (possibleMoves.isEmpty()) return false;
+
+            final List<String> mappedMoves = new ArrayList<>();
+            for (Coord possibleMove : possibleMoves) {
+                mappedMoves.add(possibleMove.getStrCoord());
+            }
+
+            moveOperation = new MoveOperation();
+            moveOperation.setSourceField(fromFieldView);
+            moveOperation.setPossibleMoves(mappedMoves);
+
+            moveOperation.setState(MoveOperation.STATE_STARTED);
+
+            showPossibleMoves(moveOperation);
+
+
+        } catch (ChessEngineException e) {
+            Log.e("CHESSBOARD", "startMoveOperation failed. ChessEngineException Message = " + e.getMessage());
+        }
+
+        return true;
+    }
+
+    private void showPossibleMoves(MoveOperation moveOperation) {
+
+        final FieldView sourceFieldView = moveOperation.getSourceField();
 
         AnimatorSet animations = new AnimatorSet();
 
@@ -195,11 +232,11 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
         }
 
         animations.start();
-
     }
 
-    @Override
-    public void hidePossibleMoves(FieldView sourceFieldView, List<Coord> possibleMoves) {
+    private void hidePossibleMoves(MoveOperation moveOperation) {
+
+        final FieldView sourceFieldView = moveOperation.getSourceField();
 
         AnimatorSet animations = new AnimatorSet();
 
@@ -211,8 +248,55 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
         }
 
         animations.start();
+    }
+
+    @Override
+    public boolean performMoveOperation(FieldView toFieldView) {
+
+        try {
+
+            if (isMoveOperationAvailable() && moveOperation.getState() == MoveOperation.STATE_STARTED) {
+
+                moveOperation.setState(MoveOperation.STATE_MOVE_TO_AND_COMPLETE);
+
+                hidePossibleMoves(moveOperation);
+
+                final Handle handle = gameHandle.getHandle();
+                final FieldView fromFieldView = moveOperation.getSourceField();
+                final Coord fromCoord = new Coord(fromFieldView.getCoordStr());
+                final Coord toCoord = new Coord(toFieldView.getCoordStr());
+
+                final MoveResult moveResult = chessEngine.moveTo(handle, fromCoord, toCoord);
+
+                moveFigure(fromFieldView, toFieldView);
+
+                if (moveResult.getMoveResultType() == MoveResultType.DECISION_NEEDED) {
+                    // TODO Dialog is needed to show!
+
+                    // adjust the moveResult with new figure for pawn transformation
+                }
+
+                completeMoveOperation(handle, moveResult);
+
+                return true;
+            }
+
+
+        } catch (ChessEngineException e) {
+            Log.e("CHESSBOARD", "performMoveOperation failed. ChessEngineException Message = " + e.getMessage());
+        }
+
+        return false;
+    }
+
+    private void completeMoveOperation(Handle handle, MoveResult moveResult) {
+
+        final int currentGameState = chessEngine.completeMoveTo(handle, moveResult);
+
+        moveOperation = null;
 
     }
+
 
     @Override
     public void moveFigure(String fromCoord, String toCoord) {
@@ -220,6 +304,12 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
         final FieldView fromField = fields.get(fromCoord);
         final FieldView toField = fields.get(toCoord);
 
+        moveFigure(fromField, toField);
+
+    }
+
+    @Override
+    public void moveFigure(FieldView fromField, FieldView toField) {
         final AbstractFigureView figureView = fromField.takeFigureView();
 
         if (figureView != null) {
@@ -290,37 +380,32 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
     }
 
     @Override
-    public void moveFigureCastling(String fromCoord, String toCoord, String fromRookCoord, String toRookCoord) {
-TODO
+    public void setGameHandle(GameHandle gameHandle) {
+        this.gameHandle = gameHandle;
     }
 
     @Override
-    public void hideFigure(String coord) {
+    public void prepareChessboard(final List<FigurePosition> figurePositions) {
 
-    }
+        /**
+         * Possibly this prepareChessboard is called before this view is ready to be drawn. So this guarantees, that
+         * the measured sizes are available
+         */
+        post(new Runnable() {
+            @Override
+            public void run() {
 
-    @Override
-    public FieldView getFieldView(String coord) {
-        return null;
-    }
+                final Context context = getContext();
 
-    @Override
-    public void rotateFiguresToWhiteSide() {
+                for (FigurePosition figurePosition : figurePositions) {
 
-    }
+                    AbstractFigureView figure = FigureViewBuilder.createFigureView(context, figurePosition.getFigureType(), figurePosition.getColorType());
+                    placeFigure(figure, figurePosition.getFieldCoord());
 
-    @Override
-    public void rotateFiguresToWhiteSide(boolean withoutAnimation) {
+                }
 
-    }
-
-    @Override
-    public void rotateFiguresToBlackSide() {
-
-    }
-
-    @Override
-    public void rotateFiguresToBlackSide(boolean withoutAnimation) {
+            }
+        });
 
     }
 

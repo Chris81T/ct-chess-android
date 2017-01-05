@@ -21,31 +21,85 @@ package de.chrthms.chess;
 import java.util.List;
 
 import de.chrthms.chess.board.FieldView;
-import de.chrthms.chess.core.GameHandle;
-import de.chrthms.chess.core.MoveOperation;
-import de.chrthms.chess.engine.core.FigurePosition;
-import de.chrthms.chess.figures.AbstractFigureView;
+import de.chrthms.chess.engine.core.Coord;
 
 /**
- * Created by christian on 01.01.17.
+ * The implementation of the chessboard must be stateless. Remember re-creating the board by the android system.
+ *
+ * @author Christian Thomas
+ *
  */
 public interface Chessboard {
 
-    void placeFigure(AbstractFigureView figure, String coord);
+    /**
+     * Show figures of possible move-fields animated.
+     *
+     * @param possibleMoves
+     */
+    void showPossibleMoves(FieldView sourceFieldView, List<Coord> possibleMoves);
 
-    boolean isMoveOperationAvailable();
+    /**
+     * Hide figures of possible move-fields animated.
+     *
+     * @param possibleMoves
+     */
+    void hidePossibleMoves(FieldView sourceFieldView, List<Coord> possibleMoves);
 
-    MoveOperation getAvailableMoveOperation();
-
-    boolean startMoveOperation(FieldView fromField);
-
-    boolean performMoveOperation(FieldView toField);
-
-    void moveFigure(FieldView fromField, FieldView toField);
+    /**
+     * Move figure from coord to coord animated.
+     *
+     * @param fromCoord
+     * @param toCoord
+     */
     void moveFigure(String fromCoord, String toCoord);
 
-    void setGameHandle(GameHandle gameHandle);
+    /**
+     * Move figure from coord to coord animated. After the figure animation the rook movement will also be animated
+     *
+     * @param fromCoord
+     * @param toCoord
+     * @param fromRookCoord
+     * @param toRookCoord
+     */
+    void moveFigureCastling(String fromCoord, String toCoord, String fromRookCoord, String toRookCoord);
 
-    void prepareChessboard(List<FigurePosition> figurePositions);
+    /**
+     * Hide figure for given coordinate animated.
+     *
+     * @param coord
+     */
+    void hideFigure(String coord);
+
+    /**
+     * Gives the according field for given coordinate.
+     *
+     * @param coord
+     * @return
+     */
+    FieldView getFieldView(String coord);
+
+    /**
+     * Rotates the figures to the white side animated.
+     */
+    void rotateFiguresToWhiteSide();
+
+    /**
+     * Rotates the figures to the white side.
+     *
+     * @param withoutAnimation controls the animation
+     */
+    void rotateFiguresToWhiteSide(boolean withoutAnimation);
+
+    /**
+     * Rotates the figures to the white black animated.
+     */
+    void rotateFiguresToBlackSide();
+
+    /**
+     * Rotates the figures to the black side.
+     *
+     * @param withoutAnimation controls the animation
+     */
+    void rotateFiguresToBlackSide(boolean withoutAnimation);
 
 }

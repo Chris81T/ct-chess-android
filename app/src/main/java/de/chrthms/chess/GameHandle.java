@@ -16,27 +16,19 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.chrthms.chess.core;
+package de.chrthms.chess;
 
-import java.io.Serializable;
-
+import de.chrthms.chess.board.FieldView;
 import de.chrthms.chess.engine.core.Handle;
 
-/**
- * Knows as a stateful component all relevant information for one game!
- *
- * Created by christian on 01.01.17.
- */
-public class GameHandle {
+public interface GameHandle {
 
-    private Handle handle;
+    void activate(Handle handle, Chessboard chessboard);
 
-    public Handle getHandle() {
-        return handle;
-    }
+    void reactivate(Chessboard chessboard);
 
-    public void setHandle(Handle handle) {
-        this.handle = handle;
-    }
+    void fieldTrigger(String coord);
+
+    void fieldTrigger(FieldView fieldView);
 
 }

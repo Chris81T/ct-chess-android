@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import de.chrthms.chess.Chessboard;
-import de.chrthms.chess.core.GameHandle;
 import de.chrthms.chess.engine.ChessEngine;
 import de.chrthms.chess.engine.core.Handle;
 import de.chrthms.chess.engine.impl.ChessEngineBuilder;
