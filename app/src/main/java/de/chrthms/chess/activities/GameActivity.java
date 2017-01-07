@@ -23,10 +23,13 @@ import android.os.Bundle;
 import android.util.Log;
 
 import de.chrthms.chess.Chessboard;
+import de.chrthms.chess.GameHandle;
+import de.chrthms.chess.constants.GameHandleMode;
 import de.chrthms.chess.engine.ChessEngine;
 import de.chrthms.chess.engine.core.Handle;
 import de.chrthms.chess.engine.impl.ChessEngineBuilder;
 import de.chrthms.chess.R;
+import de.chrthms.chess.handles.GameHandleBuilder;
 
 public class GameActivity extends AppCompatActivity {
 
@@ -40,13 +43,8 @@ public class GameActivity extends AppCompatActivity {
         final Handle handle = chessEngine.newGame();
         Log.i("GAME_ACTIVITY", "PrepareBoard --> Created handle = " + handle);
 
-        chessboard.prepareChessboard(chessEngine.getFigurePositions(handle));
-
-        GameHandle gameHandle = new GameHandle();
-        gameHandle.setHandle(handle);
-
-        chessboard.setGameHandle(gameHandle);
-
+        GameHandle gameHandle = GameHandleBuilder.build(GameHandleMode.HUMAN_VS_HUMAN_SAME_SIDE);
+        gameHandle.activate(handle, chessboard);
     }
 
     @Override

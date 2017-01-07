@@ -25,6 +25,7 @@ import java.util.List;
 import de.chrthms.chess.Chessboard;
 import de.chrthms.chess.GameHandle;
 
+import de.chrthms.chess.board.ChessboardView;
 import de.chrthms.chess.board.FieldView;
 import de.chrthms.chess.engine.ChessEngine;
 import de.chrthms.chess.engine.core.Coord;
@@ -49,7 +50,7 @@ public abstract class AbstractGameHandle implements GameHandle, Serializable {
     protected static final int STATE_COMPLETE = 6;
     protected static final int STATE_FINISHED = 7;
 
-    protected transient Chessboard chessboard = null;
+    protected transient ChessboardView chessboard = null;
     protected transient ChessEngine chessEngine = ChessEngineBuilder.build();
 
     protected Handle handle;
@@ -114,17 +115,29 @@ public abstract class AbstractGameHandle implements GameHandle, Serializable {
         this.moveResult = moveResult;
     }
 
+    private void setChessboardAndPrepareFigureViews(Chessboard chessboard) {
+
+        if (chessboard instanceof ChessboardView) {
+            this.chessboard = (ChessboardView) chessboard;
+            this.chessboard.initChessboard(this);
+        } else {
+            throw new GameHandleException("As implementation of Chessboard the ChessboardView class is expected!");
+        }
+
+        this.chessboard.prepareChessboard(chessEngine.getFigurePositions(handle));
+    }
+
     @Override
     public void activate(Handle handle, Chessboard chessboard) {
         this.handle = handle;
-        this.chessboard = chessboard;
+        setChessboardAndPrepareFigureViews(chessboard);
         setNewState(STATE_PRE_START);
         checkState();
     }
 
     @Override
     public void reactivate(Chessboard chessboard) {
-        this.chessboard = chessboard;
+        setChessboardAndPrepareFigureViews(chessboard);
         checkState();
     }
 

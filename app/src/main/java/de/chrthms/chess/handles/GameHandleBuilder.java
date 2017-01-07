@@ -20,18 +20,14 @@ package de.chrthms.chess.handles;
 
 import de.chrthms.chess.GameHandle;
 import de.chrthms.chess.constants.GameHandleMode;
+import de.chrthms.chess.exceptions.GameHandleException;
 
 /**
  * @author Christian Thomas
  */
 public abstract class GameHandleBuilder {
 
-    public static GameHandle build(int gameHandleMode) {
-        return build(gameHandleMode, GameHandle.class);
-    }
-
-    public static <T> T build(int gameHandleMode, Class<T> expectedClass) {
-
+    private static GameHandle createInstance(int gameHandleMode) {
         GameHandle gameHandle = null;
 
         switch (gameHandleMode) {
@@ -47,11 +43,22 @@ public abstract class GameHandleBuilder {
             // TODO if some other game modes will be implemented...
         }
 
+        return gameHandle;
+    }
+
+    public static GameHandle build(int gameHandleMode) {
+        return createInstance(gameHandleMode);
+    }
+
+    public static <T> T build(int gameHandleMode, Class<T> expectedClass) {
+
+        GameHandle gameHandle = createInstance(gameHandleMode);
+
         if (gameHandle != null && gameHandle.getClass().equals(expectedClass)) {
             return (T) gameHandle;
+        } else {
+            throw new GameHandleException("Created instance is not the expected one! Check gameHandleMode, expectedClass parameters!");
         }
-
-        return null;
     }
 
 }

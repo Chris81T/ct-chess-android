@@ -78,9 +78,9 @@ public class HumanVsHumanGameHandle extends AbstractHumanGameHandle {
 
         }
 
+        setNewState(STATE_IDLE);
     }
 
-    // TODO check, if move this for DRY into AbstractHuman... class
     @Override
     protected void handleStateIdle() {
 
@@ -227,8 +227,6 @@ public class HumanVsHumanGameHandle extends AbstractHumanGameHandle {
 
     @Override
     protected void handleStateFinished() {
-        // TODO Auto-generated method stub
-
         // show final dialog...
 
     }

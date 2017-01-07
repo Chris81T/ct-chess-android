@@ -35,6 +35,7 @@ import android.widget.RelativeLayout;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import de.chrthms.chess.Chessboard;
@@ -43,8 +44,8 @@ import de.chrthms.chess.R;
 import de.chrthms.chess.engine.ChessEngine;
 import de.chrthms.chess.engine.core.Coord;
 import de.chrthms.chess.engine.core.FigurePosition;
-import de.chrthms.chess.engine.core.figures.AbstractFigure;
 import de.chrthms.chess.engine.impl.ChessEngineBuilder;
+import de.chrthms.chess.exceptions.ChessboardException;
 import de.chrthms.chess.figures.AbstractFigureView;
 import de.chrthms.chess.figures.FigureViewBuilder;
 
@@ -224,6 +225,30 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
 
     @Override
     public void moveFigure(String fromCoord, String toCoord) {
+        performMovingFigure(fromCoord, toCoord, new ArrayList<ObjectAnimator>());
+    }
+
+    @Override
+    public void moveFigureCastling(String fromCoord, String toCoord, String fromRookCoord, String toRookCoord) {
+
+        final FieldView fromRookField = fields.get(fromRookCoord);
+        final FieldView toRookField = fields.get(toRookCoord);
+
+        final AbstractFigureView rookView = fromRookField.takeFigureView();
+
+        if (rookView != null) {
+
+            final List<ObjectAnimator> castlingAnimations = createFigureMoveAnimations(rookView, toRookField);
+            performMovingFigure(fromCoord, toCoord, castlingAnimations);
+
+        } else {
+            Log.e("CHESSBOARD", "No rook figure for performing castling found at 'from' field!");
+            throw new ChessboardException("No rook figure for performing castling found at 'from' field!");
+        }
+
+    }
+
+    private void performMovingFigure(String fromCoord, String toCoord, List<ObjectAnimator> castlingAnimations) {
 
         final FieldView fromField = fields.get(fromCoord);
         final FieldView toField = fields.get(toCoord);
@@ -235,29 +260,27 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
             final AbstractFigureView mayHitFigureView = toField.getFigureView();
             toField.setFigureView(figureView);
 
-            final PointF fromPoint = getFromTranslation(figureView);
-            final PointF toPoint = getFieldTranslation(toField.getCoordStr());
+            final List<ObjectAnimator> figureMoveAnimations = createFigureMoveAnimations(figureView, toField);
+            final ListIterator<ObjectAnimator> figureMoveAnimationsIterator = figureMoveAnimations.listIterator();
 
-            final ObjectAnimator moveX = ObjectAnimator
-                    .ofFloat(figureView, "translationX", fromPoint.x, toPoint.x);
-
-            final ObjectAnimator moveY = ObjectAnimator
-                    .ofFloat(figureView, "translationY", fromPoint.y, toPoint.y);
-
-            final ObjectAnimator raiseUpAndDownX = ObjectAnimator.ofFloat(figureView, "scaleX", ANIMATION_MOVE_FIGURE_RAISE_UP_DOWN);
-            raiseUpAndDownX.setRepeatCount(1);
-            raiseUpAndDownX.setRepeatMode(ValueAnimator.REVERSE);
-
-            final ObjectAnimator raiseUpAndDownY = ObjectAnimator.ofFloat(figureView, "scaleY", ANIMATION_MOVE_FIGURE_RAISE_UP_DOWN);
-            raiseUpAndDownY.setRepeatCount(1);
-            raiseUpAndDownY.setRepeatMode(ValueAnimator.REVERSE);
+            if (figureMoveAnimations.isEmpty()) {
+                throw new ChessboardException("Creating animations failed. No animation given!");
+            }
 
             AnimatorSet animatorSet = new AnimatorSet();
-            final AnimatorSet.Builder animationBuilder = animatorSet
-                    .play(moveY)
-                    .with(moveX)
-                    .with(raiseUpAndDownX)
-                    .with(raiseUpAndDownY);
+
+            final AnimatorSet.Builder animationBuilder = animatorSet.play(figureMoveAnimationsIterator.next());
+
+            while (figureMoveAnimationsIterator.hasNext()) {
+                animationBuilder.with(figureMoveAnimationsIterator.next());
+            }
+
+            if (!castlingAnimations.isEmpty()) {
+                final ListIterator<ObjectAnimator> castlingAnimationsIterator = castlingAnimations.listIterator();
+                while (castlingAnimationsIterator.hasNext()) {
+                    animationBuilder.with(castlingAnimationsIterator.next());
+                }
+            }
 
             if (mayHitFigureView != null) {
                 animationBuilder.with(createFigureFadeOutAnimation(mayHitFigureView));
@@ -269,13 +292,37 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
 
         } else {
             Log.e("CHESSBOARD", "No figure found at 'from' field!");
+            throw new ChessboardException("No figure found at 'from' field!");
         }
 
     }
 
-    @Override
-    public void moveFigureCastling(String fromCoord, String toCoord, String fromRookCoord, String toRookCoord) {
-TODO
+    private List<ObjectAnimator> createFigureMoveAnimations(AbstractFigureView figureView, FieldView toFieldView) {
+        List<ObjectAnimator> animators = new ArrayList<>();
+
+        final PointF fromPoint = getFromTranslation(figureView);
+        final PointF toPoint = getFieldTranslation(toFieldView.getCoordStr());
+
+        final ObjectAnimator moveX = ObjectAnimator
+                .ofFloat(figureView, "translationX", fromPoint.x, toPoint.x);
+
+        final ObjectAnimator moveY = ObjectAnimator
+                .ofFloat(figureView, "translationY", fromPoint.y, toPoint.y);
+
+        final ObjectAnimator raiseUpAndDownX = ObjectAnimator.ofFloat(figureView, "scaleX", ANIMATION_MOVE_FIGURE_RAISE_UP_DOWN);
+        raiseUpAndDownX.setRepeatCount(1);
+        raiseUpAndDownX.setRepeatMode(ValueAnimator.REVERSE);
+
+        final ObjectAnimator raiseUpAndDownY = ObjectAnimator.ofFloat(figureView, "scaleY", ANIMATION_MOVE_FIGURE_RAISE_UP_DOWN);
+        raiseUpAndDownY.setRepeatCount(1);
+        raiseUpAndDownY.setRepeatMode(ValueAnimator.REVERSE);
+
+        animators.add(moveX);
+        animators.add(moveY);
+        animators.add(raiseUpAndDownX);
+        animators.add(raiseUpAndDownY);
+
+        return animators;
     }
 
     private ObjectAnimator createFigureFadeOutAnimation(final AbstractFigureView figureViewToHide) {
