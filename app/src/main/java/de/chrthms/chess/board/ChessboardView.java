@@ -237,6 +237,7 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
         final AbstractFigureView rookView = fromRookField.takeFigureView();
 
         if (rookView != null) {
+            toRookField.setFigureView(rookView);
 
             final List<ObjectAnimator> castlingAnimations = createFigureMoveAnimations(rookView, toRookField);
             performMovingFigure(fromCoord, toCoord, castlingAnimations);
@@ -277,9 +278,16 @@ public class ChessboardView extends RelativeLayout implements Chessboard {
 
             if (!castlingAnimations.isEmpty()) {
                 final ListIterator<ObjectAnimator> castlingAnimationsIterator = castlingAnimations.listIterator();
+
+                AnimatorSet castlingAnimationSet = new AnimatorSet();
+                final AnimatorSet.Builder castlingBuilder = castlingAnimationSet.play(castlingAnimationsIterator.next());
+
                 while (castlingAnimationsIterator.hasNext()) {
-                    animationBuilder.with(castlingAnimationsIterator.next());
+                    castlingBuilder.with(castlingAnimationsIterator.next());
                 }
+
+                castlingAnimationSet.setDuration(ANIMATION_MOVE_FIGURE_DURATION);
+                animationBuilder.before(castlingAnimationSet);
             }
 
             if (mayHitFigureView != null) {

@@ -18,6 +18,8 @@
 
 package de.chrthms.chess.handles;
 
+import android.util.Log;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +31,7 @@ import de.chrthms.chess.board.ChessboardView;
 import de.chrthms.chess.board.FieldView;
 import de.chrthms.chess.engine.ChessEngine;
 import de.chrthms.chess.engine.core.Coord;
+import de.chrthms.chess.engine.core.FigurePosition;
 import de.chrthms.chess.engine.core.Handle;
 import de.chrthms.chess.engine.core.MoveResult;
 import de.chrthms.chess.engine.core.constants.CastlingType;
@@ -56,8 +59,6 @@ public abstract class AbstractGameHandle implements GameHandle, Serializable {
     protected Handle handle;
 
     private int state = STATE_OFF;
-
-    private String fromCoord = null;
 
     /**
      * With state POSSIBLE_MOVES_REQUEST some possible moves should be set here. With state MOVE_TO the possibleMoves
@@ -99,14 +100,6 @@ public abstract class AbstractGameHandle implements GameHandle, Serializable {
         fieldViewTrigger = null;
     }
 
-    public String getFromCoord() {
-        return fromCoord;
-    }
-
-    public void setFromCoord(String fromCoord) {
-        this.fromCoord = fromCoord;
-    }
-
     public MoveResult getMoveResult() {
         return moveResult;
     }
@@ -122,6 +115,11 @@ public abstract class AbstractGameHandle implements GameHandle, Serializable {
             this.chessboard.initChessboard(this);
         } else {
             throw new GameHandleException("As implementation of Chessboard the ChessboardView class is expected!");
+        }
+
+        // TODO remove dump!
+        for (FigurePosition figurePosition : chessEngine.getFigurePositions(handle)) {
+            Log.i("DUMP", figurePosition.getFieldCoord() + " <-- (P=0;K=1;Q=2;R=3;B=4;N=5) " + figurePosition.getFigureType() + " color (b=0;w=1): " + figurePosition.getColorType());
         }
 
         this.chessboard.prepareChessboard(chessEngine.getFigurePositions(handle));

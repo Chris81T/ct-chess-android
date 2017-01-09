@@ -88,15 +88,15 @@ public class HumanVsHumanGameHandle extends AbstractHumanGameHandle {
 
         AbstractFigureView figureView = fieldView.getFigureView();
 
-        if (figureView != null && figureView.getFigureColor() != handle.getActivePlayer()) {
+        if (figureView != null && figureView.getFigureColor() == handle.getActivePlayer()) {
 
             hideMayKingsFieldMenace();
 
             List<Coord> possibleMoves = chessEngine.possibleMoves(handle, new Coord(fieldView.getCoordStr()));
             setPossibleMoves(possibleMoves);
-            setSourceFieldView(fieldView);
 
             if (!possibleMoves.isEmpty()) {
+                setSourceFieldView(fieldView);
                 chessboard.showPossibleMoves(fieldView, possibleMoves);
 
                 setNewState(STATE_POSSIBLE_MOVES);
@@ -128,10 +128,10 @@ public class HumanVsHumanGameHandle extends AbstractHumanGameHandle {
         }
 
         if (fieldAccepted) {
+            final String fromCoord = getSourceFieldView().getCoordStr();
+
             chessboard.hidePossibleMoves(getSourceFieldView(), getPossibleMoves());
             clearPossibleMovesAndSourceFieldView();
-
-            final String fromCoord = getFromCoord();
 
             MoveResult moveResult = chessEngine.moveTo(handle, new Coord(fromCoord), new Coord(toCoord));
             setMoveResult(moveResult);
@@ -152,8 +152,16 @@ public class HumanVsHumanGameHandle extends AbstractHumanGameHandle {
             setNewState(STATE_MOVED);
             checkState();
 
+        } else if (getSourceFieldView().getCoordStr().equals(fieldView.getCoordStr())) {
+            chessboard.hidePossibleMoves(getSourceFieldView(), getPossibleMoves());
+            clearPossibleMovesAndSourceFieldView();
+            setNewState(STATE_IDLE);
+
         } else {
-            fieldView.toggleMenace();
+            chessboard.hidePossibleMoves(getSourceFieldView(), getPossibleMoves());
+            clearPossibleMovesAndSourceFieldView();
+            setNewState(STATE_IDLE);
+            checkState();
         }
 
     }
@@ -165,9 +173,11 @@ public class HumanVsHumanGameHandle extends AbstractHumanGameHandle {
 
         if (moveResult.isPawnTransformation()) {
             setNewState(STATE_PENDING_DECISION);
-            checkState();
+        } else {
+            setNewState(STATE_COMPLETE);
         }
 
+        checkState();
     }
 
     @Override
@@ -195,13 +205,14 @@ public class HumanVsHumanGameHandle extends AbstractHumanGameHandle {
     @Override
     protected void handleStateComplete() {
 
-        final int activePlayerBeforeComplete = handle.getActivePlayer();
-
         final int gameState = chessEngine.completeMoveTo(handle, getMoveResult());
+        final int activePlayerAfterComplete = handle.getActivePlayer();
+
+        clearFieldViewTrigger();
 
         switch (gameState) {
             case GameState.CHECK:
-                showKingsFieldMenace(activePlayerBeforeComplete);
+                showKingsFieldMenace(activePlayerAfterComplete);
 
             case GameState.NORMAL:
 
@@ -214,15 +225,15 @@ public class HumanVsHumanGameHandle extends AbstractHumanGameHandle {
 
             case GameState.CHECKMATE:
             case GameState.DEADLOCK:
-                showKingsFieldMenace(activePlayerBeforeComplete);
+                // if this case occurs, the chess-engine has not switched the active player while game over!
+                showKingsFieldMenace(activePlayerAfterComplete == ColorType.BLACK ? ColorType.WHITE : ColorType.BLACK);
 
             case GameState.DRAWN:
                 setNewState(STATE_FINISHED);
+                checkState();
                 break;
         }
 
-        clearFieldViewTrigger();
-        checkState();
     }
 
     @Override
