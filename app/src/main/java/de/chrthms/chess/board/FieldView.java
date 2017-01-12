@@ -24,7 +24,9 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import de.chrthms.chess.GameHandle;
@@ -88,10 +90,19 @@ public class FieldView extends FrameLayout {
         initChildViews(context);
     }
 
+    private void initChildView(View view) {
+        view.setAlpha(0f);
+        addView(view);
+    }
+
     private void initChildViews(Context context) {
         menaceFieldView = new MenaceFieldView(context);
         possibleFieldView = new PossibleFieldView(context);
         sourceFieldView = new SourceFieldView(context);
+
+        initChildView(menaceFieldView);
+        initChildView(possibleFieldView);
+        initChildView(sourceFieldView);
     }
 
     public AbstractFigureView getFigureView() {
@@ -122,77 +133,28 @@ public class FieldView extends FrameLayout {
 
     public void toggleMenace() {
 
-        addView(menaceFieldView);
-
         final ObjectAnimator alphaAnimation = ObjectAnimator.ofFloat(menaceFieldView, "alpha", 0f, 1f);
         alphaAnimation.setRepeatCount(1);
         alphaAnimation.setRepeatMode(ValueAnimator.REVERSE);
         alphaAnimation.setDuration(ANIMATION_INVALID_FIELD_DURATION);
-
-        alphaAnimation.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                removeView(menaceFieldView);
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-
         alphaAnimation.start();
 
     }
 
     public void showMenace() {
-        addView(menaceFieldView);
         final ObjectAnimator alphaAnimation = ObjectAnimator.ofFloat(menaceFieldView, "alpha", 0f, 1f);
         alphaAnimation.setDuration(ANIMATION_INVALID_FIELD_DURATION);
+        alphaAnimation.setAutoCancel(true);
         alphaAnimation.start();
     }
 
     public void hideMenace() {
         final ObjectAnimator alphaAnimation = ObjectAnimator.ofFloat(menaceFieldView, "alpha", 1f, 0f);
         alphaAnimation.setDuration(ANIMATION_INVALID_FIELD_DURATION);
-
-        alphaAnimation.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                removeView(menaceFieldView);
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-
         alphaAnimation.start();
     }
 
     public ObjectAnimator getSourceFieldFadeInAnimation() {
-        addView(sourceFieldView);
         final ObjectAnimator fadeInAnimation = ObjectAnimator.ofFloat(sourceFieldView, "alpha", 0f, 1f);
         fadeInAnimation.setDuration(ANIMATION_SOURCE_FIELD_DURATION);
         return fadeInAnimation;
@@ -201,65 +163,19 @@ public class FieldView extends FrameLayout {
     public ObjectAnimator getSourceFieldFadeOutAnimation() {
         final ObjectAnimator fadeOutAnimation = ObjectAnimator.ofFloat(sourceFieldView, "alpha", 1f, 0f);
         fadeOutAnimation.setDuration(ANIMATION_SOURCE_FIELD_DURATION);
-
-        fadeOutAnimation.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                removeView(sourceFieldView);
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-
         return fadeOutAnimation;
     }
 
     public ObjectAnimator getPossibleMovesFadeInAnimation() {
-        addView(possibleFieldView);
         final ObjectAnimator fadeInAnimation = ObjectAnimator.ofFloat(possibleFieldView, "alpha", 0f, 1f);
         fadeInAnimation.setDuration(ANIMATION_POSSIBLE_FIELDS_DURATION);
+        fadeInAnimation.setAutoCancel(true);
         return fadeInAnimation;
     }
 
         public ObjectAnimator getPossibleMovesFadeOutAnimation() {
-        final ObjectAnimator fadeOutAnimation = ObjectAnimator.ofFloat(possibleFieldView, "alpha", 1f, 0f);
-        fadeOutAnimation.setDuration(ANIMATION_POSSIBLE_FIELDS_DURATION);
-
-            fadeOutAnimation.addListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    removeView(possibleFieldView);
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-
-                }
-            });
-
+            final ObjectAnimator fadeOutAnimation = ObjectAnimator.ofFloat(possibleFieldView, "alpha", 1f, 0f);
+            fadeOutAnimation.setDuration(ANIMATION_POSSIBLE_FIELDS_DURATION);
             return fadeOutAnimation;
     }
 
